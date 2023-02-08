@@ -6,7 +6,7 @@ networks:
 services:
   nginx:
     build:
-      context: .
+      context: ./dockerfiles
       dockerfile: nginx.dockerfile
       args:
         - UID=${UID:-1000}
@@ -38,7 +38,7 @@ services:
 
   php:
     build:
-      context: .
+      context: ./dockerfiles
       dockerfile: php.dockerfile
       args:
         - UID=${UID:-1000}
@@ -52,7 +52,7 @@ services:
 
   composer:
     build:
-      context: .
+      context: ./dockerfiles
       dockerfile: php.dockerfile
       args:
         - UID=${UID:-1000}
@@ -81,7 +81,7 @@ services:
 
   artisan:
     build:
-      context: .
+      context: ./dockerfiles
       dockerfile: php.dockerfile
       args:
         - UID=${UID:-1000}
