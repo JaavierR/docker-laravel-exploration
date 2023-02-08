@@ -78,3 +78,18 @@ services:
     entrypoint: [ 'npm' ]
     networks:
       - laravel
+
+  artisan:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    volumes:
+      - ./src:/var/www/html:delegated
+    depends_on:
+      - mysql
+    entrypoint: ["php", "/var/www/html/artisan"]
+    networks:
+      - laravel
