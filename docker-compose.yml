@@ -1,20 +1,29 @@
 version: '3.8'
 
+networks:
+  laravel:
+
 services:
   nginx:
     build:
       context: .
       dockerfile: nginx.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     ports:
       - 80:80
     volumes:
-      - ./src:/var/www/html
+      - ./src:/var/www/html:delegated
     depends_on:
       - mysql
       - php
+    networks:
+      - laravel
 
   mysql:
     image: mysql:latest
+    restart: unless-stopped
     ports:
       - 3306:3306
     environment:
@@ -24,25 +33,48 @@ services:
       MYSQL_USER: laravel
       MYSQL_PASSWORD: secret
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
-    volumes:
-      - mysql-db:/var/lib/mysql
+    networks:
+      - laravel
 
   php:
     build:
       context: .
       dockerfile: php.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    ports:
+      - 9000:9000
     volumes:
-      - ./src:/var/www/html
-    depends_on:
-      - mysql
+      - ./src:/var/www/html:delegated
+    networks:
+      - laravel
 
   composer:
     build:
       context: .
-      dockerfile: composer.dockerfile
+      dockerfile: php.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     volumes:
       - ./src:/var/www/html
-    working_dir: /var/www/html
+    depends_on:
+      - php
+    entrypoint: ["composer", '--ignore-platform-reqs']
+    networks:
+      - laravel
 
-volumes:
-  mysql-db:
+  npm:
+    image: node:current-alpine
+    volumes:
+      - ./src:/var/www/html
+    user: ${UID:-1000}:${GID:-1000}
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "5173:5173"
+    working_dir: /var/www/html
+    entrypoint: [ 'npm' ]
+    networks:
+      - laravel

@@ -1,12 +1,16 @@
 FROM nginx:stable-alpine
 
-ENV NGINXUSER=laravel
-ENV NGINXGROUP=laravel
+ARG UID
+ARG GID
 
-RUN mkdir -p /var/www/html/public
+ENV UID=${UID}
+ENV GID=${GID}
 
-ADD nginx/default.conf /etc/nginx/conf.d/default.conf
+RUN addgroup -g ${GID} --system laravel
+RUN adduser -G laravel --system -D -s /bin/sh -u ${UID} laravel
 
 RUN sed -i "s/user www-data/user laravel/g" /etc/nginx/nginx.conf
 
-RUN adduser -g ${NGINXGROUP} -s /bin/sh -D ${NGINXUSER}
+ADD ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+RUN mkdir -p /var/www/html
