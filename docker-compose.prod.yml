@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  nginx:
+  app:
     build:
       context: ./dockerfiles
       dockerfile: nginx.prod.dockerfile
